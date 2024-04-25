@@ -1,0 +1,17 @@
+{
+  "name": "webd3practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "toolbar.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grxver7/WebEngineering2.git"
+  },
+  "private": true,
+  "dependencies": {
+    "d3": "^7.9.0"
+  }
+}
