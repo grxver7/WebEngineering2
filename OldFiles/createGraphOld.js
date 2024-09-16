@@ -1,14 +1,16 @@
-// Function to fill in the data
+//import {readDataFromFile} from "./jsonReader.mjs";
+
 function fillData() {
     const data = new Map();
     data.set("User 1", ["User 2", "User 3", "User 4"]);
     data.set("User 2", ["User 1", "User 3"]);
-    data.set("User 3", ["User 1", "User 2", "User 4", "User 5", "User 6", "User 7", "User 8"]);
+    data.set("User 3", ["User 1", "User 2", "User 4", "User 5", "User 6", "User 7"]);
     data.set("User 4", ["User 1", "User 3", "User 5", "User 6", "User 7", "User 8"]);
     data.set("User 5", ["User 3", "User 4", "User 6", "User 7", "User 8"]);
     data.set("User 6", ["User 3", "User 4", "User 5", "User 7", "User 8"]);
     data.set("User 7", ["User 3", "User 4", "User 5", "User 6", "User 8"]);
-    data.set("User 8", ["User 3", "User 4", "User 5", "User 6", "User 7"]);
+    data.set("User 8", ["User 5", "User 6", "User 7"]);
+    data.set("User 9", ["User 5", "User 6", "User 7"]);
     return data;
 }
 
@@ -19,7 +21,7 @@ function mapToArray(dataMap) {
 
     nodeNames.forEach((name, index) => {
         const connections = dataMap.get(name).map(targetName => nodeNames.indexOf(targetName));
-        dataArray.push({ name, connections });
+        dataArray.push({name, connections});
     });
 
     return dataArray;
@@ -28,21 +30,16 @@ function mapToArray(dataMap) {
 // Generate the data
 const dataMap = fillData();
 const data = mapToArray(dataMap);
+//const data = readDataFromFile();
+
+console.log("Data read from file:", data);
 
 // Create SVG
 const svg = d3.select("#graph");
 const width = window.innerWidth;
 const height = window.innerHeight;
 svg.attr("width", width).attr("height", height);
-// Append a semi-transparent rectangle to create a dark overlay
-svg.append("rect")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("fill", "rgba(0, 0, 0, 1)") // Adjust the opacity as needed
-    .attr("class", "darkscreen")
-    .lower(); // Ensure the darkscreen is behind other elements
 
-invertColors();
 const graph = svg.append("g");
 
 // Create force simulation
@@ -57,7 +54,7 @@ const link = graph.append("g")
     .attr("stroke", "#999")
     .attr("stroke-opacity", 0.6)
     .selectAll("line")
-    .data(data.flatMap(d => d.connections.map(target => ({ source: d, target: data[target] }))))
+    .data(data.flatMap(d => d.connections.map(target => ({source: d, target: data[target]}))))
     .join("line");
 
 // Create nodes
@@ -74,16 +71,17 @@ const node = graph.append("g")
 let selectedNode = null;
 
 // Handle click event on nodes
-node.on("click", function(event, d) {
+node.on("click", function (event, d) {
     if (selectedNode === d) {
         unselectNode();
         return;
     }
+
     selectedNode = d;
     resetNodeColors(); // Reset node colors
     highlightedNode = d;
     highlightNodes();
-    d3.select(this).style("fill", "red"); // Set the clicked node color
+    d3.select(this).classed("sourceHighlighted", true);
     d3.select(this).classed("faded", false);
 });
 
@@ -123,20 +121,26 @@ let highlightedNode = data[0];
 function highlightNodes() {
     node.classed("faded", d => !highlightedNode.connections.includes(data.findIndex(node => node.name === d.name)));
     node.classed("highlighted", d => highlightedNode.connections.includes(data.findIndex(node => node.name === d.name)));
-    link.classed("highlighted", d => d.source === highlightedNode || d.target === highlightedNode);
+
+    link.classed("linkHighlighted", d => (d.target === highlightedNode));
+    link.classed("linkHighlighted", d => (d.source === highlightedNode));
 }
 
 // Function to unselect the current node
 function unselectNode() {
     selectedNode = null;
-    resetNodeColors(); // Reset node colors
-    node.classed("highlighted", false); // Remove highlighting from nodes
-    link.classed("highlighted", false); // Remove highlighting from links
+    resetNodeColors();
+    node.classed("faded", false);
+    link.classed("faded", false);
 }
 
 // Function to reset node colors
-function resetNodeColors() {
-    node.style("fill", "steelblue");
+function resetNodeColors() { //remove highlighted
+    node.classed("highlighted", false);
+    node.classed("sourceHighlighted", false);
+    link.classed("highlighted", false);
+    link.classed("linkHighlighted", false);
+    link.classed("linkTargetHighlighted", false);
 }
 
 // Define drag behavior
@@ -173,11 +177,4 @@ svg.call(zoom); // call zoom on the SVG element
 
 function zoomed(event) {
     graph.attr("transform", event.transform); // adjust the graph's transform based on the zoom event
-}
-
-// Function to invert colors
-function invertColors() {
-    svg.classed("inverted", true); // Apply the inverted class to the SVG
-    // Apply the inverted class to all child elements of the SVG
-    svg.selectAll("*").classed("inverted", true);
 }

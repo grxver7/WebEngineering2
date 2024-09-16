@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Instagram Network Graph</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Graph with D3.js</title>
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-<script src="graph.js" type="module"></script>
-
-<div id="graph-container">
-    <div class="toolbar">
-        <input id="searchBox" disabled="true" type="text" placeholder="Search...">
-        <button id="logButton">Login</button>
-    </div>
+<div class="toolbar">
+    <input id="searchBox" type="text" disabled="true" placeholder="Search...">
+    <button id="logButton">Login</button>
 </div>
-
 <script src="toolbar.js" defer></script>
+
+<!-- Testing the behaviour of Login and Search -->
+
 <!-- Log-In Modal -->
 <div id="loginModal" class="modal">
     <div class="modal-content">
